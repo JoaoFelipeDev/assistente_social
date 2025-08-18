@@ -1,10 +1,15 @@
 part of 'cadastro_bloc.dart';
 
+// Enum para o status geral do formulário
 enum FormStatus { initial, loading, success, failure }
+
+// Enum para o status específico da validação do CPF
+enum CpfStatus { initial, checking, valid, invalid, failure }
 
 class CadastroState extends Equatable {
   const CadastroState({
     this.formStatus = FormStatus.initial,
+    this.cpfStatus = CpfStatus.initial,
     this.nomeCompleto = '',
     this.cpf = '',
     this.rg = '',
@@ -13,9 +18,11 @@ class CadastroState extends Equatable {
     this.genero,
     this.naturalidade = '',
     this.contato = '',
-    // Adicionaremos os outros campos das outras abas aqui depois...
+    this.errorMessage = '',
   });
 
+  final FormStatus formStatus;
+  final CpfStatus cpfStatus;
   final String nomeCompleto;
   final String cpf;
   final String rg;
@@ -24,10 +31,15 @@ class CadastroState extends Equatable {
   final Genero? genero;
   final String naturalidade;
   final String contato;
+  final String errorMessage;
 
-  final FormStatus formStatus;
+  // Propriedade computada para facilitar a lógica na UI
+  bool get isCpfValid =>
+      cpfStatus == CpfStatus.valid || cpfStatus == CpfStatus.initial;
 
   CadastroState copyWith({
+    FormStatus? formStatus,
+    CpfStatus? cpfStatus,
     String? nomeCompleto,
     String? cpf,
     String? rg,
@@ -36,9 +48,11 @@ class CadastroState extends Equatable {
     Genero? genero,
     String? naturalidade,
     String? contato,
-    FormStatus? formStatus,
+    String? errorMessage,
   }) {
     return CadastroState(
+      formStatus: formStatus ?? this.formStatus,
+      cpfStatus: cpfStatus ?? this.cpfStatus,
       nomeCompleto: nomeCompleto ?? this.nomeCompleto,
       cpf: cpf ?? this.cpf,
       rg: rg ?? this.rg,
@@ -47,6 +61,7 @@ class CadastroState extends Equatable {
       genero: genero ?? this.genero,
       naturalidade: naturalidade ?? this.naturalidade,
       contato: contato ?? this.contato,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
@@ -55,19 +70,18 @@ class CadastroState extends Equatable {
       'nome_completo': nomeCompleto,
       'cpf': cpf,
       'rg': rg,
-      // As datas precisam ser enviadas no formato ISO 8601
       'data_nascimento': dataNascimento?.toIso8601String(),
-      // Os enums precisam ser enviados como o texto que o banco espera
       'estado_civil': estadoCivil?.displayName,
       'genero': genero?.displayName,
       'naturalidade': naturalidade,
       'telefone': contato,
-      // ... aqui mapearemos os campos das outras abas no futuro
     };
   }
 
   @override
   List<Object?> get props => [
+        formStatus,
+        cpfStatus,
         nomeCompleto,
         cpf,
         rg,
@@ -75,6 +89,7 @@ class CadastroState extends Equatable {
         estadoCivil,
         genero,
         naturalidade,
-        contato
+        contato,
+        errorMessage
       ];
 }

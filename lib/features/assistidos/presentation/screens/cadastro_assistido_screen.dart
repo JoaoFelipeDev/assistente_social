@@ -32,8 +32,8 @@ class _CadastroAssistidoScreenState extends State<CadastroAssistidoScreen>
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          CadastroBloc(AssistidoRepository(Supabase.instance.client)),
+      create: (context) => CadastroBloc(
+          assistidoRepository: AssistidoRepository(Supabase.instance.client)),
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Cadastro de Assistido'),
@@ -73,7 +73,7 @@ class _CadastroAssistidoScreenState extends State<CadastroAssistidoScreen>
                         children: [
                           _buildFolderTab(
                             'Dados Pessoais',
-                            Colors.blue.shade600,
+                            Color.fromARGB(255, 109, 154, 223),
                             Colors.white,
                             0,
                           ),

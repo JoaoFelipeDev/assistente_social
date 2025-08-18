@@ -20,6 +20,9 @@ class CadastroCpfChanged extends CadastroEvent {
   List<Object> get props => [cpf];
 }
 
+// Evento que faltava
+class CadastroCpfUnfocused extends CadastroEvent {}
+
 class CadastroRgChanged extends CadastroEvent {
   final String rg;
   const CadastroRgChanged(this.rg);
@@ -49,4 +52,3 @@ class CadastroGeneroChanged extends CadastroEvent {
 }
 
 class CadastroSubmitted extends CadastroEvent {}
-// ... e assim por diante para cada campo ...

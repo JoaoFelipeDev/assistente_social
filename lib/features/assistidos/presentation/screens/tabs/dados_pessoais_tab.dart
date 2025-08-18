@@ -14,22 +14,33 @@ class DadosPessoaisTab extends StatefulWidget {
 class _DadosPessoaisTabState extends State<DadosPessoaisTab> {
   final TextEditingController _dateController = TextEditingController();
   DateTime? _selectedDate;
+
+  final _cpfFocusNode =
+      FocusNode(); // 🔹 FocusNode para capturar quando perde o foco
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Listener para disparar evento quando o CPF perde o foco
+    _cpfFocusNode.addListener(() {
+      if (!_cpfFocusNode.hasFocus) {
+        context.read<CadastroBloc>().add(CadastroCpfUnfocused());
+      }
+    });
+  }
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      // Data inicial que o calendário irá mostrar
       initialDate: _selectedDate ?? DateTime.now(),
-      // Data mais antiga permitida (100 anos atrás)
       firstDate: DateTime(DateTime.now().year - 100),
-      // Data mais recente permitida (hoje)
       lastDate: DateTime.now(),
     );
 
-    // Se o usuário selecionou uma data, atualizamos o estado
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
-        // Formatamos a data para o padrão brasileiro e atualizamos o campo de texto
         _dateController.text = DateFormat('dd/MM/yyyy').format(picked);
       });
       context.read<CadastroBloc>().add(CadastroDataNascimentoChanged(picked));
@@ -38,23 +49,20 @@ class _DadosPessoaisTabState extends State<DadosPessoaisTab> {
 
   @override
   void dispose() {
-    // É importante limpar o controlador quando o widget é destruído
+    _cpfFocusNode.dispose();
     _dateController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Usamos um LayoutBuilder para adaptar o layout a diferentes larguras de tela
     return Container(
-      color: const Color(0xFF2B5DA7),
+      color: const Color.fromARGB(255, 109, 154, 223),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          // Se a tela for larga (desktop), usamos o layout com a foto ao lado
           if (constraints.maxWidth > 800) {
             return _buildWideLayout();
           } else {
-            // Se for estreita (talvez um dia no celular), usamos um layout vertical
             return _buildNarrowLayout();
           }
         },
@@ -62,30 +70,20 @@ class _DadosPessoaisTabState extends State<DadosPessoaisTab> {
     );
   }
 
-  // Layout para telas largas (Desktop)
   Widget _buildWideLayout() {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 32.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Coluna Esquerda: Formulário
-          Expanded(
-            flex: 2, // Ocupa 2/3 da largura
-            child: _buildForm(),
-          ),
+          Expanded(flex: 2, child: _buildForm()),
           const SizedBox(width: 48),
-          // Coluna Direita: Foto
-          Expanded(
-            flex: 1, // Ocupa 1/3 da largura
-            child: _buildPhotoSection(),
-          ),
+          Expanded(flex: 1, child: _buildPhotoSection()),
         ],
       ),
     );
   }
 
-  // Layout para telas estreitas
   Widget _buildNarrowLayout() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
@@ -99,27 +97,33 @@ class _DadosPessoaisTabState extends State<DadosPessoaisTab> {
     );
   }
 
-  // Widget do Formulário (reutilizado nos dois layouts)
   Widget _buildForm() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         TextFormField(
           decoration: const InputDecoration(labelText: 'Nome Completo'),
-          onChanged: (value) {
-            // Dispara o evento com o novo valor do nome
-            context.read<CadastroBloc>().add(CadastroNomeChanged(value));
-          },
+          onChanged: (value) =>
+              context.read<CadastroBloc>().add(CadastroNomeChanged(value)),
         ),
         const SizedBox(height: 24),
         Row(
           children: [
+            // 🔹 Campo CPF com validação integrada ao Bloc
             Expanded(
-              child: TextFormField(
-                decoration: const InputDecoration(labelText: 'CPF'),
-                onChanged: (value) {
-                  // Dispara o evento com o novo valor do CPF
-                  context.read<CadastroBloc>().add(CadastroCpfChanged(value));
+              child: BlocBuilder<CadastroBloc, CadastroState>(
+                builder: (context, state) {
+                  return TextFormField(
+                    focusNode: _cpfFocusNode,
+                    onChanged: (value) => context
+                        .read<CadastroBloc>()
+                        .add(CadastroCpfChanged(value)),
+                    decoration: InputDecoration(
+                      labelText: 'CPF',
+                      errorText: !state.isCpfValid ? state.errorMessage : null,
+                      suffixIcon: _buildCpfStatusIcon(state.cpfStatus),
+                    ),
+                  );
                 },
               ),
             ),
@@ -127,10 +131,8 @@ class _DadosPessoaisTabState extends State<DadosPessoaisTab> {
             Expanded(
               child: TextFormField(
                 decoration: const InputDecoration(labelText: 'RG'),
-                onChanged: (value) {
-                  // Dispara o evento com o novo valor do RG
-                  context.read<CadastroBloc>().add(CadastroRgChanged(value));
-                },
+                onChanged: (value) =>
+                    context.read<CadastroBloc>().add(CadastroRgChanged(value)),
               ),
             ),
           ],
@@ -139,7 +141,6 @@ class _DadosPessoaisTabState extends State<DadosPessoaisTab> {
         Row(
           children: [
             Expanded(
-              // 4. Atualização do TextFormField de Data de Nascimento
               child: TextFormField(
                 controller: _dateController,
                 decoration: const InputDecoration(
@@ -161,7 +162,7 @@ class _DadosPessoaisTabState extends State<DadosPessoaisTab> {
                   );
                 }).toList(),
                 onChanged: (value) {
-                  // TODO: Conectar ao BLoC para salvar o estado
+                  // TODO: conectar ao Bloc
                 },
               ),
             ),
@@ -176,7 +177,6 @@ class _DadosPessoaisTabState extends State<DadosPessoaisTab> {
           }).toList(),
           onChanged: (value) {
             if (value != null) {
-              // Dispara o evento com o novo gênero selecionado
               context.read<CadastroBloc>().add(CadastroGeneroChanged(value));
             }
           },
@@ -194,7 +194,6 @@ class _DadosPessoaisTabState extends State<DadosPessoaisTab> {
     );
   }
 
-  // Widget da Seção da Foto (reutilizado nos dois layouts)
   Widget _buildPhotoSection() {
     return Column(
       children: [
@@ -212,5 +211,26 @@ class _DadosPessoaisTabState extends State<DadosPessoaisTab> {
         ),
       ],
     );
+  }
+
+  /// 🔹 Ícones de status para o CPF
+  Widget? _buildCpfStatusIcon(CpfStatus status) {
+    switch (status) {
+      case CpfStatus.checking:
+        return const Padding(
+          padding: EdgeInsets.all(12.0),
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        );
+      case CpfStatus.valid:
+        return const Icon(Icons.check_circle, color: Colors.green);
+      case CpfStatus.invalid:
+        return const Icon(Icons.error, color: Colors.red);
+      default:
+        return null;
+    }
   }
 }
