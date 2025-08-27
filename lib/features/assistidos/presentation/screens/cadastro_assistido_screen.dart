@@ -1,5 +1,6 @@
 import 'package:assistencia_social/features/assistidos/bloc/cadastro_bloc.dart';
 import 'package:assistencia_social/features/assistidos/data/repositories/assistido_repository.dart';
+import 'package:assistencia_social/features/assistidos/presentation/screens/tabs/endereco_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -121,7 +122,7 @@ class _CadastroAssistidoScreenState extends State<CadastroAssistidoScreen>
                     controller: _tabController,
                     children: const <Widget>[
                       DadosPessoaisTab(),
-                      Center(child: Text("Conteúdo de Endereço")),
+                      EnderecoTab(),
                       Center(child: Text("Conteúdo de Família")),
                       Center(child: Text("Conteúdo de Perfil Socioeconômico")),
                     ],

@@ -39,3 +39,17 @@ enum EstadoCivil {
     }
   }
 }
+
+enum SituacaoMoradia {
+  propria,
+  alugada;
+
+  String get displayName {
+    switch (this) {
+      case SituacaoMoradia.propria:
+        return 'Própria';
+      case SituacaoMoradia.alugada:
+        return 'Alugada';
+    }
+  }
+}

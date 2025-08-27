@@ -34,6 +34,13 @@ class CadastroBloc extends Bloc<CadastroEvent, CadastroState> {
       emit(state.copyWith(foto: event.foto));
     });
     on<CadastroSubmitted>(_onSubmitted);
+
+    on<CadastroSituacaoMoradiaChanged>(
+        (event, emit) => emit(state.copyWith(situacaoMoradia: event.situacao)));
+    on<CadastroCepChanged>(
+        (event, emit) => emit(state.copyWith(cep: event.cep)));
+    on<CadastroRuaChanged>(
+        (event, emit) => emit(state.copyWith(rua: event.rua)));
   }
 
   Future<void> _onCpfUnfocused(

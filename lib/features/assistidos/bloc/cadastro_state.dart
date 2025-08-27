@@ -21,6 +21,13 @@ class CadastroState extends Equatable {
     this.errorMessage = '',
     this.submissionAttempted = false,
     this.foto,
+    this.situacaoMoradia,
+    this.cep = '',
+    this.rua = '',
+    this.numero = '',
+    this.bairro = '',
+    this.cidade = '',
+    this.uf = '',
   });
 
   final FormStatus formStatus;
@@ -36,6 +43,13 @@ class CadastroState extends Equatable {
   final String errorMessage;
   final bool submissionAttempted;
   final XFile? foto;
+  final SituacaoMoradia? situacaoMoradia;
+  final String cep;
+  final String rua;
+  final String numero;
+  final String bairro;
+  final String cidade;
+  final String uf;
 
   // Propriedade computada para facilitar a lógica na UI
   bool get isCpfValid =>
@@ -63,6 +77,13 @@ class CadastroState extends Equatable {
     String? contato,
     String? errorMessage,
     XFile? foto,
+    SituacaoMoradia? situacaoMoradia,
+    String? cep,
+    String? rua,
+    String? numero,
+    String? bairro,
+    String? cidade,
+    String? uf,
   }) {
     return CadastroState(
       submissionAttempted: submissionAttempted ?? this.submissionAttempted,
@@ -78,6 +99,13 @@ class CadastroState extends Equatable {
       contato: contato ?? this.contato,
       errorMessage: errorMessage ?? this.errorMessage,
       foto: foto ?? this.foto,
+      situacaoMoradia: situacaoMoradia ?? this.situacaoMoradia,
+      cep: cep ?? this.cep,
+      rua: rua ?? this.rua,
+      numero: numero ?? this.numero,
+      bairro: bairro ?? this.bairro,
+      cidade: cidade ?? this.cidade,
+      uf: uf ?? this.uf,
     );
   }
 
@@ -91,6 +119,13 @@ class CadastroState extends Equatable {
       'genero': genero?.displayName,
       'naturalidade': naturalidade,
       'telefone': contato,
+      'situacao_moradia': situacaoMoradia?.displayName,
+      'cep': cep,
+      'endereco_rua': rua,
+      'endereco_numero': numero,
+      'endereco_bairro': bairro,
+      'endereco_cidade': cidade,
+      'endereco_uf': uf,
     };
   }
 
@@ -106,6 +141,14 @@ class CadastroState extends Equatable {
         genero,
         naturalidade,
         contato,
-        errorMessage
+        errorMessage,
+        foto,
+        situacaoMoradia,
+        cep,
+        rua,
+        numero,
+        bairro,
+        cidade,
+        uf
       ];
 }

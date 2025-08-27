@@ -59,3 +59,18 @@ class CadastroFotoChanged extends CadastroEvent {
 }
 
 class CadastroSubmitted extends CadastroEvent {}
+
+class CadastroCepChanged extends CadastroEvent {
+  final String cep;
+  const CadastroCepChanged(this.cep);
+}
+
+class CadastroRuaChanged extends CadastroEvent {
+  final String rua;
+  const CadastroRuaChanged(this.rua);
+}
+
+class CadastroSituacaoMoradiaChanged extends CadastroEvent {
+  final SituacaoMoradia situacao;
+  const CadastroSituacaoMoradiaChanged(this.situacao);
+}
