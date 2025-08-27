@@ -19,6 +19,8 @@ class CadastroState extends Equatable {
     this.naturalidade = '',
     this.contato = '',
     this.errorMessage = '',
+    this.submissionAttempted = false,
+    this.foto,
   });
 
   final FormStatus formStatus;
@@ -32,12 +34,23 @@ class CadastroState extends Equatable {
   final String naturalidade;
   final String contato;
   final String errorMessage;
+  final bool submissionAttempted;
+  final XFile? foto;
 
   // Propriedade computada para facilitar a lógica na UI
   bool get isCpfValid =>
       cpfStatus == CpfStatus.valid || cpfStatus == CpfStatus.initial;
+  bool get isDadosPessoaisValid {
+    return nomeCompleto.isNotEmpty &&
+        cpf.isNotEmpty &&
+        dataNascimento != null &&
+        estadoCivil != null &&
+        genero != null &&
+        isCpfValid;
+  }
 
   CadastroState copyWith({
+    bool? submissionAttempted,
     FormStatus? formStatus,
     CpfStatus? cpfStatus,
     String? nomeCompleto,
@@ -49,8 +62,10 @@ class CadastroState extends Equatable {
     String? naturalidade,
     String? contato,
     String? errorMessage,
+    XFile? foto,
   }) {
     return CadastroState(
+      submissionAttempted: submissionAttempted ?? this.submissionAttempted,
       formStatus: formStatus ?? this.formStatus,
       cpfStatus: cpfStatus ?? this.cpfStatus,
       nomeCompleto: nomeCompleto ?? this.nomeCompleto,
@@ -62,6 +77,7 @@ class CadastroState extends Equatable {
       naturalidade: naturalidade ?? this.naturalidade,
       contato: contato ?? this.contato,
       errorMessage: errorMessage ?? this.errorMessage,
+      foto: foto ?? this.foto,
     );
   }
 

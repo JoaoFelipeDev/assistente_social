@@ -51,4 +51,11 @@ class CadastroGeneroChanged extends CadastroEvent {
   List<Object> get props => [genero];
 }
 
+class CadastroFotoChanged extends CadastroEvent {
+  final XFile? foto;
+  const CadastroFotoChanged(this.foto);
+  @override
+  List<Object?> get props => [foto];
+}
+
 class CadastroSubmitted extends CadastroEvent {}

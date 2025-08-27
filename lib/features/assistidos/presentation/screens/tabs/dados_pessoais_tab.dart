@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:assistencia_social/features/assistidos/bloc/cadastro_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:assistencia_social/features/assistidos/domain/models/assistido_enums.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 class DadosPessoaisTab extends StatefulWidget {
@@ -28,6 +31,18 @@ class _DadosPessoaisTabState extends State<DadosPessoaisTab> {
         context.read<CadastroBloc>().add(CadastroCpfUnfocused());
       }
     });
+  }
+
+  Future<void> _pickImage() async {
+    final imagePicker = ImagePicker();
+    // Abre a galeria para o usuário escolher uma imagem
+    final XFile? pickedFile =
+        await imagePicker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      // Envia o evento para o BLoC com o arquivo selecionado
+      context.read<CadastroBloc>().add(CadastroFotoChanged(pickedFile));
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -87,12 +102,28 @@ class _DadosPessoaisTabState extends State<DadosPessoaisTab> {
   Widget _buildNarrowLayout() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
-      child: Column(
-        children: [
-          _buildForm(),
-          const SizedBox(height: 32),
-          _buildPhotoSection(),
-        ],
+      child: BlocBuilder<CadastroBloc, CadastroState>(
+        builder: (context, state) {
+          String? showError(String value) {
+            return state.submissionAttempted && value.isEmpty
+                ? 'Campo obrigatório'
+                : null;
+          }
+
+          String? showErrorForNullable(Object? value) {
+            return state.submissionAttempted && value == null
+                ? 'Campo obrigatório'
+                : null;
+          }
+
+          return Column(
+            children: [
+              _buildForm(),
+              const SizedBox(height: 32),
+              _buildPhotoSection(),
+            ],
+          );
+        },
       ),
     );
   }
@@ -195,21 +226,31 @@ class _DadosPessoaisTabState extends State<DadosPessoaisTab> {
   }
 
   Widget _buildPhotoSection() {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 80,
-          backgroundColor: Colors.grey.shade200,
-          child: Icon(Icons.camera_alt, size: 60, color: Colors.grey.shade400),
-        ),
-        const SizedBox(height: 16),
-        TextButton(
-          onPressed: () {
-            // TODO: Implementar lógica de upload/captura de foto
-          },
-          child: const Text('Carregar Foto'),
-        ),
-      ],
+    return BlocBuilder<CadastroBloc, CadastroState>(
+      builder: (context, state) {
+        return Column(
+          children: [
+            CircleAvatar(
+              radius: 80,
+              backgroundColor: Colors.grey.shade200,
+              // Mostra a imagem selecionada ou o ícone da câmera
+              backgroundImage:
+                  state.foto != null ? FileImage(File(state.foto!.path)) : null,
+              child: state.foto == null
+                  ? Icon(Icons.camera_alt,
+                      size: 60, color: Colors.grey.shade400)
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextButton.icon(
+              onPressed: _pickImage, // Chama a função para escolher a imagem
+              icon: const Icon(Icons.upload, color: Colors.white),
+              label: const Text('Carregar Foto',
+                  style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
     );
   }
 

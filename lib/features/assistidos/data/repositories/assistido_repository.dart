@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // Definindo um tipo para clareza. Um Assistido é um Mapa de String para dynamic.
@@ -62,6 +65,32 @@ class AssistidoRepository {
     } catch (e) {
       print('Erro ao verificar CPF: $e');
       return false;
+    }
+  }
+
+  Future<String?> uploadProfileImage({
+    required XFile imageFile,
+    required String cpf,
+  }) async {
+    try {
+      final file = File(imageFile.path);
+      final fileExtension = imageFile.path.split('.').last.toLowerCase();
+      // Criamos um caminho único para cada usuário usando o CPF
+      final filePath = '$cpf/profile.$fileExtension';
+
+      // Fazendo o upload
+      await _client.storage.from('fotos-perfil').upload(
+            filePath,
+            file,
+            fileOptions:
+                const FileOptions(upsert: true), // Sobrescreve se já existir
+          );
+
+      // Retornando a URL pública da imagem
+      return _client.storage.from('fotos-perfil').getPublicUrl(filePath);
+    } catch (e) {
+      print('Erro no upload da imagem: $e');
+      return null;
     }
   }
 }

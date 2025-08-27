@@ -2,6 +2,7 @@ import 'package:assistencia_social/features/assistidos/data/repositories/assisti
 import 'package:assistencia_social/features/assistidos/domain/models/assistido_enums.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
 part 'cadastro_event.dart';
 part 'cadastro_state.dart';
@@ -29,6 +30,9 @@ class CadastroBloc extends Bloc<CadastroEvent, CadastroState> {
 
     // O handler que estava faltando:
     on<CadastroCpfUnfocused>(_onCpfUnfocused);
+    on<CadastroFotoChanged>((event, emit) {
+      emit(state.copyWith(foto: event.foto));
+    });
     on<CadastroSubmitted>(_onSubmitted);
   }
 
@@ -61,8 +65,13 @@ class CadastroBloc extends Bloc<CadastroEvent, CadastroState> {
     CadastroSubmitted event,
     Emitter<CadastroState> emit,
   ) async {
-    if (!state.isCpfValid) return;
+    emit(state.copyWith(submissionAttempted: true));
 
+    if (!state.isCpfValid) return;
+    if (!state.isDadosPessoaisValid) {
+      // Se não for válido, não prossegue. A UI irá reagir e mostrar os erros.
+      return;
+    }
     emit(state.copyWith(formStatus: FormStatus.loading));
     try {
       await _assistidoRepository.createAssistido(state.toJson());
